@@ -1,0 +1,51 @@
+# trusty has pyenv by default
+dist: trusty
+# we don't need sudo
+sudo: false
+# use Java defaults -- we'll install or switch to anything else
+language: Java
+# use Oracle Java 8
+jdk: oraclejdk8
+
+before_install:
+  # ensure we are using the correct version of gradle
+  - wget https://services.gradle.org/distributions/gradle-4.9-bin.zip
+  - unzip -d $HOME gradle-4.9-bin.zip
+  # probably don't need this but just to be sure
+  - rm -rf gradle-4.9-bin.zip
+  # add gradle bin to path at the beginning to ensure it overwrites old gradle
+  - export PATH="$HOME/gradle-4.9/bin:$PATH"
+  # install mdl for markdown linting
+  - gem install mdl
+  # switch to python 3.6.3 globally, install python deps
+  - pyenv global 3.6.3
+  - pip install --upgrade pip
+  - pip install proselint
+  - pip install pipenv
+
+# cache to improve build speed
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.pip-cache/
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+# delete old gatorgrader for clean slate
+before_script:
+  - rm -rf $HOME/.local/share/gatorgrader/
+
+# run grading checks
+script:
+  # lint the sample documentation writing
+  - mdl README.md
+  - mdl writing/reflection.md
+  - proselint README.md
+  - proselint writing/reflection.md
+  # in an actual assignment, only the following lines would be in the script block
+  - gradle --version
+  - gradle clean
+  - gradle grade
