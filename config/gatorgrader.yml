@@ -11,6 +11,8 @@ src/main/latex/samplelab:
         --fragment "\paragraph" --count 2
         --fragment "\LaTeXe{}" --count 1
         --fragment "\bibliography{main}" --count 1
+        --regex "\\begin([^;]*)\\end" --count 1
+
     sample.bib:
         --exists
         --fragment "@article" --count 1
